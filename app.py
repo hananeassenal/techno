@@ -29,7 +29,7 @@ logistic_regression_model = load_model(logistic_regression_model_path)
 decision_tree_model = load_model(decision_tree_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 
-# Define feature columns
+# Define feature columns used for training the models
 feature_cols = [
     'total_payment', 'CreditScore', 'OrigInterestRate', 'MonthlyIncome', 'MIP',
     'OCLTV', 'MonthlyRate', 'MSA', 'OrigLoanTerm', 'interest_amt', 'EMI', 'cur_principal',
@@ -97,18 +97,12 @@ st.markdown(
 st.sidebar.header('Input Features')
 st.sidebar.write("Please enter the values for the features below:")
 
-input_data = {}
-for col in feature_cols:
-    input_data[col] = st.sidebar.number_input(
-        f'{col}', 
-        value=float(sample_values[col]),  # Ensure value is float
-        format="%.2f", 
-        step=0.01, 
-        min_value=-1e10,  # Set practical minimum value
-        max_value=1e10    # Set practical maximum value
-    )
+input_data = {col: st.sidebar.number_input(f'{col}', value=float(sample_values[col]), format="%.2f", step=0.01, min_value=-1e10, max_value=1e10) for col in feature_cols}
 
 input_df = pd.DataFrame([input_data])
+
+# Ensure the DataFrame has the correct columns and order
+input_df = input_df[feature_cols]
 
 # Display input data for debugging
 st.write("### Input Data")
