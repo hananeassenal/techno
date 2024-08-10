@@ -5,7 +5,6 @@ import numpy as np
 import os
 
 # Define paths to the model files
-naive_bayes_model_path = 'naive_bayes_model.pkl'
 logistic_regression_model_path = 'logistic_regression_model.pkl'
 decision_tree_model_path = 'decision_tree_model.pkl'
 linear_model_path = 'linear_model.pkl'
@@ -25,7 +24,6 @@ def load_model(path):
         st.error(f"Error loading model from '{path}': {e}")
         return None
 
-naive_bayes_pipe = load_model(naive_bayes_model_path)
 logistic_regression_pipe = load_model(logistic_regression_model_path)
 decision_tree_pipe = load_model(decision_tree_model_path)
 linear_pipe = load_model(linear_model_path)
@@ -117,7 +115,7 @@ st.write(input_df)
 # Model selection
 model_choice = st.sidebar.selectbox(
     'Select Model for Prediction',
-    ['Linear Regression', 'Naive Bayes', 'Logistic Regression', 'Decision Tree']
+    ['Linear Regression', 'Logistic Regression', 'Decision Tree']
 )
 
 # Make predictions
@@ -134,15 +132,6 @@ if st.sidebar.button('Predict'):
             st.write(f"### Prepayment: **{linear_pred_display}**")
         except Exception as e:
             st.write(f"**Error in Linear Regression prediction:** {e}")
-
-    elif model_choice == 'Naive Bayes' and naive_bayes_pipe:
-        try:
-            # Make predictions with Naive Bayes
-            nb_pred = naive_bayes_pipe.predict(input_df)
-            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Naive Bayes Result: **{result_nb}**")
-        except Exception as e:
-            st.write(f"**Error in Naive Bayes prediction:** {e}")
 
     elif model_choice == 'Logistic Regression' and logistic_regression_pipe:
         try:
