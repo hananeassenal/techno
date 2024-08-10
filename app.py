@@ -53,14 +53,14 @@ st.title('Mortgage Model Prediction Web Application')
 st.sidebar.header('Input Features')
 st.sidebar.write("Enter the feature values below:")
 
-# Input data from user
+# Example input data likely to be rejected
 input_data = {
-    'CreditScore': st.sidebar.number_input('CreditScore', value=700.0, format="%.2f"),
-    'MIP': st.sidebar.number_input('MIP', value=0.0, format="%.2f"),
-    'DTI': st.sidebar.number_input('DTI', value=0.35, format="%.2f"),
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1']),
-    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
+    'CreditScore': st.sidebar.number_input('CreditScore', value=550.0, format="%.2f"),  # Low credit score
+    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),  # Higher mortgage insurance
+    'DTI': st.sidebar.number_input('DTI', value=0.55, format="%.2f"),  # High debt-to-income ratio
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['1', '0']),  # Previously delinquent
+    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=12.0, format="%.2f"),  # High number of delinquent months
+    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=6.0, format="%.2f"),  # Short repayment period
 }
 
 # Convert categorical inputs
