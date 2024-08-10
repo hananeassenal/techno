@@ -23,6 +23,7 @@ def user_input_features():
     months_delinquent = st.sidebar.slider('Months Delinquent', min_value=0, max_value=12, value=0)
     months_in_repayment = st.sidebar.slider('Months In Repayment', min_value=0, max_value=360, value=60)
     
+    # Ensure the features match those used during model training
     data = {
         'CreditScore': credit_score,
         'MIP': mip,
@@ -32,6 +33,7 @@ def user_input_features():
         'MonthsInRepayment': months_in_repayment
     }
     
+    # Create DataFrame with the correct column order
     features = pd.DataFrame(data, index=[0])
     return features
 
@@ -41,33 +43,38 @@ input_data = user_input_features()
 st.write("Input Data:")
 st.write(input_data)
 
-try:
-    # Scale the data
-    scaled_input = scaler.transform(input_data)
-except Exception as e:
-    st.write(f"Error during scaling: {e}")
+# Check the columns in the input data
+expected_columns = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
+if list(input_data.columns) != expected_columns:
+    st.write(f"Feature columns mismatch: Expected {expected_columns}, but got {list(input_data.columns)}")
+else:
+    try:
+        # Scale the data
+        scaled_input = scaler.transform(input_data)
+        
+        # Predictions
+        logistic_regression_prediction = logistic_regression_model.predict(scaled_input)
+        decision_tree_prediction = decision_tree_model.predict(scaled_input)
+        random_forest_prediction = random_forest_model.predict(scaled_input)
+        naive_bayes_prediction = naive_bayes_model.predict(scaled_input)
+        
+        # Display results
+        st.subheader('Model Predictions')
+        st.write("Logistic Regression Prediction: ", "Accepted for Credit" if logistic_regression_prediction[0] == 1 else "Not Accepted for Credit")
+        st.write("Decision Tree Prediction: ", "Accepted for Credit" if decision_tree_prediction[0] == 1 else "Not Accepted for Credit")
+        st.write("Random Forest Prediction: ", "Accepted for Credit" if random_forest_prediction[0] == 1 else "Not Accepted for Credit")
+        st.write("Naive Bayes Prediction: ", "Accepted for Credit" if naive_bayes_prediction[0] == 1 else "Not Accepted for Credit")
+    except Exception as e:
+        st.write(f"Error during scaling or prediction: {e}")
 
-# Predictions
-try:
-    logistic_regression_prediction = logistic_regression_model.predict(scaled_input)
-    decision_tree_prediction = decision_tree_model.predict(scaled_input)
-    random_forest_prediction = random_forest_model.predict(scaled_input)
-    naive_bayes_prediction = naive_bayes_model.predict(scaled_input)
+    # If you want to show the feature importance from the models
+    st.subheader('Model Feature Importances')
 
-    # Display results
-    st.subheader('Model Predictions')
-    st.write("Logistic Regression Prediction: ", "Accepted for Credit" if logistic_regression_prediction[0] == 1 else "Not Accepted for Credit")
-    st.write("Decision Tree Prediction: ", "Accepted for Credit" if decision_tree_prediction[0] == 1 else "Not Accepted for Credit")
-    st.write("Random Forest Prediction: ", "Accepted for Credit" if random_forest_prediction[0] == 1 else "Not Accepted for Credit")
-    st.write("Naive Bayes Prediction: ", "Accepted for Credit" if naive_bayes_prediction[0] == 1 else "Not Accepted for Credit")
-except Exception as e:
-    st.write(f"Error during prediction: {e}")
-
-# If you want to show the feature importance from the models
-st.subheader('Model Feature Importances')
-
-if hasattr(decision_tree_model, 'feature_importances_'):
-    feature_importances = decision_tree_model.feature_importances_
-    features = input_data.columns
-    importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
-    st.write(importance_df)
+    try:
+        if hasattr(decision_tree_model, 'feature_importances_'):
+            feature_importances = decision_tree_model.feature_importances_
+            features = input_data.columns
+            importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+            st.write(importance_df)
+    except Exception as e:
+        st.write(f"Error displaying feature importance: {e}")
