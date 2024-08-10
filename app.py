@@ -82,53 +82,56 @@ model_choice = st.sidebar.selectbox(
 
 # Make predictions
 if st.sidebar.button('Predict'):
-    if model_choice == 'Logistic Regression' and logistic_regression_model:
+    if scaler:
         try:
             # Scale the data
             scaled_data = scaler.transform(processed_data)
-            # Logistic Regression prediction
-            lr_pred = logistic_regression_model.predict(scaled_data)
-            st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
-            result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Logistic Regression Result: **{result_lr}**")
         except Exception as e:
-            st.write(f"**Error in Logistic Regression prediction:** {e}")
+            st.write(f"**Error during scaling:** {e}")
+            scaled_data = None
+        
+        if scaled_data is not None:
+            if model_choice == 'Logistic Regression' and logistic_regression_model:
+                try:
+                    # Logistic Regression prediction
+                    lr_pred = logistic_regression_model.predict(scaled_data)
+                    st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
+                    result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
+                    st.write(f"### Logistic Regression Result: **{result_lr}**")
+                except Exception as e:
+                    st.write(f"**Error in Logistic Regression prediction:** {e}")
 
-    elif model_choice == 'Decision Tree' and decision_tree_model:
-        try:
-            # Scale the data
-            scaled_data = scaler.transform(processed_data)
-            # Decision Tree prediction
-            dt_pred = decision_tree_model.predict(scaled_data)
-            st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
-            result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Decision Tree Result: **{result_dt}**")
-        except Exception as e:
-            st.write(f"**Error in Decision Tree prediction:** {e}")
+            elif model_choice == 'Decision Tree' and decision_tree_model:
+                try:
+                    # Decision Tree prediction
+                    dt_pred = decision_tree_model.predict(scaled_data)
+                    st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
+                    result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
+                    st.write(f"### Decision Tree Result: **{result_dt}**")
+                except Exception as e:
+                    st.write(f"**Error in Decision Tree prediction:** {e}")
 
-    elif model_choice == 'Random Forest' and random_forest_model:
-        try:
-            # Scale the data
-            scaled_data = scaler.transform(processed_data)
-            # Random Forest prediction
-            rf_pred = random_forest_model.predict(scaled_data)
-            st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
-            result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Random Forest Result: **{result_rf}**")
-        except Exception as e:
-            st.write(f"**Error in Random Forest prediction:** {e}")
+            elif model_choice == 'Random Forest' and random_forest_model:
+                try:
+                    # Random Forest prediction
+                    rf_pred = random_forest_model.predict(scaled_data)
+                    st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
+                    result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
+                    st.write(f"### Random Forest Result: **{result_rf}**")
+                except Exception as e:
+                    st.write(f"**Error in Random Forest prediction:** {e}")
 
-    elif model_choice == 'Naive Bayes' and naive_bayes_model:
-        try:
-            # Scale the data
-            scaled_data = scaler.transform(processed_data)
-            # Naive Bayes prediction
-            nb_pred = naive_bayes_model.predict(scaled_data)
-            st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
-            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Naive Bayes Result: **{result_nb}**")
-        except Exception as e:
-            st.write(f"**Error in Naive Bayes prediction:** {e}")
+            elif model_choice == 'Naive Bayes' and naive_bayes_model:
+                try:
+                    # Naive Bayes prediction
+                    nb_pred = naive_bayes_model.predict(scaled_data)
+                    st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
+                    result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
+                    st.write(f"### Naive Bayes Result: **{result_nb}**")
+                except Exception as e:
+                    st.write(f"**Error in Naive Bayes prediction:** {e}")
 
+            else:
+                st.write("**Error:** The selected model failed to load or is not available.")
     else:
-        st.write("**Error:** The selected model failed to load or is not available.")
+        st.write("**Error:** Scaler not loaded or not available.")
