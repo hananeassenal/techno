@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load the models and scaler
+# Load the scaler and models
 logistic_regression_model = joblib.load('logistic_regression_model.pkl')
 decision_tree_model = joblib.load('decision_tree_model.pkl')
 random_forest_model = joblib.load('random_forest_model.pkl')
@@ -23,7 +23,6 @@ def user_input_features():
     months_delinquent = st.sidebar.slider('Months Delinquent', min_value=0, max_value=12, value=0)
     months_in_repayment = st.sidebar.slider('Months In Repayment', min_value=0, max_value=360, value=60)
     
-    # Ensure the features match those used during model training
     data = {
         'CreditScore': credit_score,
         'MIP': mip,
@@ -33,7 +32,6 @@ def user_input_features():
         'MonthsInRepayment': months_in_repayment
     }
     
-    # Create DataFrame with the correct column order
     features = pd.DataFrame(data, index=[0])
     return features
 
@@ -71,10 +69,20 @@ else:
     st.subheader('Model Feature Importances')
 
     try:
+        feature_importances = None
         if hasattr(decision_tree_model, 'feature_importances_'):
             feature_importances = decision_tree_model.feature_importances_
+        elif hasattr(random_forest_model, 'feature_importances_'):
+            feature_importances = random_forest_model.feature_importances_
+        
+        if feature_importances is not None:
             features = input_data.columns
-            importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
-            st.write(importance_df)
+            if len(features) == len(feature_importances):
+                importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+                st.write(importance_df)
+            else:
+                st.write("Feature importances length mismatch.")
+        else:
+            st.write("Feature importance is not available for the loaded models.")
     except Exception as e:
         st.write(f"Error displaying feature importance: {e}")
