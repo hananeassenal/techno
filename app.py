@@ -31,10 +31,11 @@ naive_bayes_model = load_model(naive_bayes_model_path)
 
 # Define the correct feature columns as used during training
 training_feature_cols = [
-    'CreditScore', 'MonthsInRepayment', 'LTV', 'FirstTimeHomebuyer', 'PPM',
-    'MSA', 'TotalPayment', 'OrigInterestRate', 'MonthlyIncome', 'OCLTV',
-    'MonthlyRate', 'interest_amt', 'EMI', 'cur_principal', 'MonthsDelinquent',
-    'DTI', 'OrigUPB', 'EverDelinquent'
+    'CreditScore', 'FirstPaymentDate', 'FirstTimeHomebuyer', 'MaturityDate', 'MSA', 'MIP', 'Units', 
+    'Occupancy', 'OCLTV', 'DTI', 'OrigUPB', 'LTV', 'OrigInterestRate', 'Channel', 'PPM', 'ProductType', 
+    'PropertyState', 'PropertyType', 'LoanPurpose', 'OrigLoanTerm', 'NumBorrowers', 'SellerName', 
+    'ServicerName', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment', 'CreditScoreGroup', 
+    'RepaymentYearsGroup', 'LTVGroup'
 ]
 
 # Define preprocessing function
@@ -93,28 +94,47 @@ st.sidebar.write("Please enter the values for the features below:")
 # Sample values for testing
 input_data = {
     'CreditScore': st.sidebar.number_input('CreditScore', value=700.0, format="%.2f"),
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
-    'LTV': st.sidebar.number_input('LTV', value=80.0, format="%.2f"),
+    'FirstPaymentDate': st.sidebar.date_input('FirstPaymentDate'),
     'FirstTimeHomebuyer': st.sidebar.selectbox('FirstTimeHomebuyer', ['Yes', 'No']),
-    'PPM': st.sidebar.selectbox('PPM', ['Yes', 'No']),
+    'MaturityDate': st.sidebar.date_input('MaturityDate'),
     'MSA': st.sidebar.number_input('MSA', value=100.0, format="%.2f"),
-    'TotalPayment': st.sidebar.number_input('TotalPayment', value=500.0, format="%.2f"),
-    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=3.5, format="%.2f"),
-    'MonthlyIncome': st.sidebar.number_input('MonthlyIncome', value=5000.0, format="%.2f"),
+    'MIP': st.sidebar.number_input('MIP', value=0.0, format="%.2f"),
+    'Units': st.sidebar.number_input('Units', value=1.0, format="%.2f"),
+    'Occupancy': st.sidebar.selectbox('Occupancy', ['Owner Occupied', 'Investment', 'Second Home']),
     'OCLTV': st.sidebar.number_input('OCLTV', value=80.0, format="%.2f"),
-    'MonthlyRate': st.sidebar.number_input('MonthlyRate', value=0.03, format="%.2f"),
-    'interest_amt': st.sidebar.number_input('interest_amt', value=1000.0, format="%.2f"),
-    'EMI': st.sidebar.number_input('EMI', value=1500.0, format="%.2f"),
-    'cur_principal': st.sidebar.number_input('cur_principal', value=200000.0, format="%.2f"),
-    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
     'DTI': st.sidebar.number_input('DTI', value=0.35, format="%.2f"),
     'OrigUPB': st.sidebar.number_input('OrigUPB', value=180000.0, format="%.2f"),
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1'])
+    'LTV': st.sidebar.number_input('LTV', value=80.0, format="%.2f"),
+    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=3.5, format="%.2f"),
+    'Channel': st.sidebar.selectbox('Channel', ['Retail', 'Wholesale']),
+    'PPM': st.sidebar.selectbox('PPM', ['Yes', 'No']),
+    'ProductType': st.sidebar.selectbox('ProductType', ['Fixed', 'ARM']),
+    'PropertyState': st.sidebar.text_input('PropertyState', value='CA'),
+    'PropertyType': st.sidebar.selectbox('PropertyType', ['Single Family', 'Condo']),
+    'LoanPurpose': st.sidebar.selectbox('LoanPurpose', ['Purchase', 'Refinance']),
+    'OrigLoanTerm': st.sidebar.number_input('OrigLoanTerm', value=360.0, format="%.2f"),
+    'NumBorrowers': st.sidebar.number_input('NumBorrowers', value=1.0, format="%.2f"),
+    'SellerName': st.sidebar.text_input('SellerName', value='ABC Corp'),
+    'ServicerName': st.sidebar.text_input('ServicerName', value='XYZ Servicer'),
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1']),
+    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
+    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
+    'CreditScoreGroup': st.sidebar.selectbox('CreditScoreGroup', ['Low', 'Medium', 'High']),
+    'RepaymentYearsGroup': st.sidebar.selectbox('RepaymentYearsGroup', ['Short', 'Medium', 'Long']),
+    'LTVGroup': st.sidebar.selectbox('LTVGroup', ['Low', 'Medium', 'High'])
 }
 
 # Convert categorical inputs
 input_data['FirstTimeHomebuyer'] = 1 if input_data['FirstTimeHomebuyer'] == 'Yes' else 0
+input_data['Occupancy'] = 1 if input_data['Occupancy'] == 'Owner Occupied' else (2 if input_data['Occupancy'] == 'Investment' else 3)
+input_data['Channel'] = 1 if input_data['Channel'] == 'Retail' else 2
 input_data['PPM'] = 1 if input_data['PPM'] == 'Yes' else 0
+input_data['ProductType'] = 1 if input_data['ProductType'] == 'Fixed' else 2
+input_data['PropertyType'] = 1 if input_data['PropertyType'] == 'Single Family' else 2
+input_data['LoanPurpose'] = 1 if input_data['LoanPurpose'] == 'Purchase' else 2
+input_data['CreditScoreGroup'] = 1 if input_data['CreditScoreGroup'] == 'Low' else (2 if input_data['CreditScoreGroup'] == 'Medium' else 3)
+input_data['RepaymentYearsGroup'] = 1 if input_data['RepaymentYearsGroup'] == 'Short' else (2 if input_data['RepaymentYearsGroup'] == 'Medium' else 3)
+input_data['LTVGroup'] = 1 if input_data['LTVGroup'] == 'Low' else (2 if input_data['LTVGroup'] == 'Medium' else 3)
 input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
 
 input_df = preprocess_data(input_data)
