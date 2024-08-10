@@ -37,7 +37,7 @@ lasso_regression_model = load_model(lasso_regression_model_path)
 expected_feature_cols_lr = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
 expected_feature_cols_dt_rf = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
 expected_feature_cols_nb = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
-expected_feature_cols_lin = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
+expected_feature_cols_lin = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment', 'EMI', 'MonthlyIncome', 'OrigInterestRate', 'OrigLoanTerm', 'OrigUPB']
 
 # Preprocess input data
 def preprocess_data(data, feature_cols):
@@ -61,6 +61,11 @@ input_data = {
     'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1']),
     'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=6.0, format="%.2f"),
     'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=12.0, format="%.2f"),
+    'EMI': st.sidebar.number_input('EMI', value=1500.0, format="%.2f"),
+    'MonthlyIncome': st.sidebar.number_input('MonthlyIncome', value=5000.0, format="%.2f"),
+    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=4.5, format="%.2f"),
+    'OrigLoanTerm': st.sidebar.number_input('OrigLoanTerm', value=360.0, format="%.2f"),
+    'OrigUPB': st.sidebar.number_input('OrigUPB', value=200000.0, format="%.2f"),
 }
 
 # Convert categorical inputs
@@ -77,71 +82,65 @@ if st.sidebar.button('Predict'):
     if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_lr)
-            # Ensure the input data for Logistic Regression is of correct shape
             if processed_data.shape[1] == len(expected_feature_cols_lr):
                 lr_pred = logistic_regression_model.predict(processed_data)
                 st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
                 result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
                 st.write(f"### Logistic Regression Result: **{result_lr}**")
             else:
-                st.write("**Error:** The input data does not match the expected feature set for Logistic Regression.")
+                st.write("**Error:** Feature mismatch for Logistic Regression")
         except Exception as e:
             st.write(f"**Error in Logistic Regression prediction:** {e}")
 
     elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_dt_rf)
-            # Ensure the input data for Decision Tree is of correct shape
             if processed_data.shape[1] == len(expected_feature_cols_dt_rf):
                 dt_pred = decision_tree_model.predict(processed_data)
                 st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
                 result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
                 st.write(f"### Decision Tree Result: **{result_dt}**")
             else:
-                st.write("**Error:** The input data does not match the expected feature set for Decision Tree.")
+                st.write("**Error:** Feature mismatch for Decision Tree")
         except Exception as e:
             st.write(f"**Error in Decision Tree prediction:** {e}")
 
     elif model_choice == 'Random Forest' and random_forest_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_dt_rf)
-            # Ensure the input data for Random Forest is of correct shape
             if processed_data.shape[1] == len(expected_feature_cols_dt_rf):
                 rf_pred = random_forest_model.predict(processed_data)
                 st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
                 result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
                 st.write(f"### Random Forest Result: **{result_rf}**")
             else:
-                st.write("**Error:** The input data does not match the expected feature set for Random Forest.")
+                st.write("**Error:** Feature mismatch for Random Forest")
         except Exception as e:
             st.write(f"**Error in Random Forest prediction:** {e}")
 
     elif model_choice == 'Naive Bayes' and naive_bayes_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_nb)
-            # Ensure the input data for Naive Bayes is of correct shape
             if processed_data.shape[1] == len(expected_feature_cols_nb):
                 nb_pred = naive_bayes_model.predict(processed_data)
                 st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
                 result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
                 st.write(f"### Naive Bayes Result: **{result_nb}**")
             else:
-                st.write("**Error:** The input data does not match the expected feature set for Naive Bayes.")
+                st.write("**Error:** Feature mismatch for Naive Bayes")
         except Exception as e:
             st.write(f"**Error in Naive Bayes prediction:** {e}")
 
     elif model_choice == 'Lasso Regression' and lasso_regression_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_lin)
-            # Ensure the input data for Lasso Regression is of correct shape
             if processed_data.shape[1] == len(expected_feature_cols_lin):
                 lasso_pred = lasso_regression_model.predict(processed_data)
                 st.write(f"**Lasso Regression Raw Prediction:** {lasso_pred[0]}")
-                # Lasso Regression output may need interpretation based on your specific application
-                result_lasso = 'Accepted for Credit' if lasso_pred[0] > threshold else 'Rejected for Credit'  # Adjust threshold as necessary
+                result_lasso = 'Accepted for Credit' if lasso_pred[0] > 0.5 else 'Rejected for Credit'
                 st.write(f"### Lasso Regression Result: **{result_lasso}**")
             else:
-                st.write("**Error:** The input data does not match the expected feature set for Lasso Regression.")
+                st.write("**Error:** Feature mismatch for Lasso Regression")
         except Exception as e:
             st.write(f"**Error in Lasso Regression prediction:** {e}")
 
