@@ -2,9 +2,22 @@ import streamlit as st
 import joblib
 import pandas as pd
 import numpy as np
+import os
+
+# Define paths to the model files
+knn_model_path = 'knn_model.pkl'
+linear_model_path = 'linear_model.pkl'
+
 # Load pre-trained models
-knn_pipe = joblib.load('knn_model.pkl')
-linear_pipe = joblib.load('linear_model.pkl')
+def load_model(path):
+    if os.path.isfile(path):
+        return joblib.load(path)
+    else:
+        st.error(f"Model file not found: {path}")
+        return None
+
+knn_pipe = load_model(knn_model_path)
+linear_pipe = load_model(linear_model_path)
 
 # Define all feature columns used during model training
 all_feature_cols = [
@@ -92,22 +105,25 @@ st.write(input_df)
 
 # Make predictions
 if st.sidebar.button('Predict'):
-    try:
-        # Make predictions with KNN
-        knn_pred = knn_pipe.predict(input_df)
-        result_knn = 'Accepted for Credit' if knn_pred[0] == 1 else 'Rejected for Credit'
-        st.write(f"### you are : **{result_knn}**")
-    except Exception as e:
-        st.write(f"**Error in KNN prediction:** {e}")
+    if knn_pipe and linear_pipe:
+        try:
+            # Make predictions with KNN
+            knn_pred = knn_pipe.predict(input_df)
+            result_knn = 'Accepted for Credit' if knn_pred[0] == 1 else 'Rejected for Credit'
+            st.write(f"### You are: **{result_knn}**")
+        except Exception as e:
+            st.write(f"**Error in KNN prediction:** {e}")
 
-    try:
-        # Make predictions with Linear Regression
-        linear_pred = linear_pipe.predict(input_df)
-        # Handle extreme values
-        if np.abs(linear_pred[0]) > 1e6:  # Threshold for large values
-            linear_pred_display = "Value too large"
-        else:
-            linear_pred_display = f"{linear_pred[0]:.2f}"
-        st.write(f"### prepeyment : **{linear_pred_display}**")
-    except Exception as e:
-        st.write(f"**Error in Linear Regression prediction:** {e}")
+        try:
+            # Make predictions with Linear Regression
+            linear_pred = linear_pipe.predict(input_df)
+            # Handle extreme values
+            if np.abs(linear_pred[0]) > 1e6:  # Threshold for large values
+                linear_pred_display = "Value too large"
+            else:
+                linear_pred_display = f"{linear_pred[0]:.2f}"
+            st.write(f"### Prepayment: **{linear_pred_display}**")
+        except Exception as e:
+            st.write(f"**Error in Linear Regression prediction:** {e}")
+    else:
+        st.write("**Error:** One or both of the models failed to load.")
