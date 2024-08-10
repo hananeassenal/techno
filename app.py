@@ -9,6 +9,7 @@ logistic_regression_model_path = 'logistic_model (1).pkl'
 decision_tree_model_path = 'decision_tree_model (3).pkl'
 naive_bayes_model_path = 'naive_bayes_model (2).pkl'
 
+
 # Load pre-trained models with error handling
 def load_model(path):
     try:
@@ -29,32 +30,25 @@ logistic_regression_model = load_model(logistic_regression_model_path)
 decision_tree_model = load_model(decision_tree_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 
-# Define feature columns used for training the models
+# Define feature columns and preprocessing similar to your example
 feature_cols = [
-    'total_payment', 'CreditScore', 'OrigInterestRate', 'MonthlyIncome', 'MIP',
-    'OCLTV', 'MonthlyRate', 'MSA', 'OrigLoanTerm', 'interest_amt', 'EMI', 'cur_principal',
-    'MonthsDelinquent', 'DTI', 'OrigUPB', 'MonthsInRepayment'
+    'CreditScore', 'MonthsInRepayment', 'LTV', 'FirstTimeHomebuyer', 'PPM',
+    'MSA', 'TotalPayment', 'OrigInterestRate', 'MonthlyIncome', 'OCLTV',
+    'MonthlyRate', 'interest_amt', 'EMI', 'cur_principal', 'MonthsDelinquent',
+    'DTI', 'OrigUPB', 'EverDelinquent'
 ]
 
-# Sample values for testing
-sample_values = {
-    'total_payment': 500.0,
-    'CreditScore': 700.0,
-    'OrigInterestRate': 3.5,
-    'MonthlyIncome': 5000.0,
-    'MIP': 0.5,
-    'OCLTV': 80.0,
-    'MonthlyRate': 0.03,
-    'MSA': 100.0,
-    'OrigLoanTerm': 30.0,
-    'interest_amt': 1000.0,
-    'EMI': 1500.0,
-    'cur_principal': 200000.0,
-    'MonthsDelinquent': 3.0,
-    'DTI': 0.35,
-    'OrigUPB': 180000.0,
-    'MonthsInRepayment': 24.0
-}
+# Define preprocessing function
+def preprocess_data(data):
+    # Ensure input data has the correct feature columns
+    df = pd.DataFrame([data])
+    df = df[feature_cols]
+
+    # Apply any additional preprocessing if needed
+    # For example, you can use preprocessing steps like scaling, encoding, etc.
+    
+    # Here, we assume preprocessing has already been applied or is not needed
+    return df
 
 # Define Streamlit UI
 st.set_page_config(page_title='Mortgage Model Prediction', layout='wide')
@@ -97,12 +91,34 @@ st.markdown(
 st.sidebar.header('Input Features')
 st.sidebar.write("Please enter the values for the features below:")
 
-input_data = {col: st.sidebar.number_input(f'{col}', value=float(sample_values[col]), format="%.2f", step=0.01, min_value=-1e10, max_value=1e10) for col in feature_cols}
+# Sample values for testing
+input_data = {
+    'CreditScore': st.sidebar.number_input('CreditScore', value=700.0, format="%.2f"),
+    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
+    'LTV': st.sidebar.number_input('LTV', value=80.0, format="%.2f"),
+    'FirstTimeHomebuyer': st.sidebar.selectbox('FirstTimeHomebuyer', ['Yes', 'No']),
+    'PPM': st.sidebar.selectbox('PPM', ['Yes', 'No']),
+    'MSA': st.sidebar.number_input('MSA', value=100.0, format="%.2f"),
+    'TotalPayment': st.sidebar.number_input('TotalPayment', value=500.0, format="%.2f"),
+    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=3.5, format="%.2f"),
+    'MonthlyIncome': st.sidebar.number_input('MonthlyIncome', value=5000.0, format="%.2f"),
+    'OCLTV': st.sidebar.number_input('OCLTV', value=80.0, format="%.2f"),
+    'MonthlyRate': st.sidebar.number_input('MonthlyRate', value=0.03, format="%.2f"),
+    'interest_amt': st.sidebar.number_input('interest_amt', value=1000.0, format="%.2f"),
+    'EMI': st.sidebar.number_input('EMI', value=1500.0, format="%.2f"),
+    'cur_principal': st.sidebar.number_input('cur_principal', value=200000.0, format="%.2f"),
+    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
+    'DTI': st.sidebar.number_input('DTI', value=0.35, format="%.2f"),
+    'OrigUPB': st.sidebar.number_input('OrigUPB', value=180000.0, format="%.2f"),
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1'])
+}
 
-input_df = pd.DataFrame([input_data])
+# Convert categorical inputs
+input_data['FirstTimeHomebuyer'] = 1 if input_data['FirstTimeHomebuyer'] == 'Yes' else 0
+input_data['PPM'] = 1 if input_data['PPM'] == 'Yes' else 0
+input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
 
-# Ensure the DataFrame has the correct columns and order
-input_df = input_df[feature_cols]
+input_df = preprocess_data(input_data)
 
 # Display input data for debugging
 st.write("### Input Data")
