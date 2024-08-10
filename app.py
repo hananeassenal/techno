@@ -9,6 +9,7 @@ logistic_regression_model_path = 'logistic_regression_model.pkl'
 decision_tree_model_path = 'decision_tree_model.pkl'
 random_forest_model_path = 'random_forest_model.pkl'
 naive_bayes_model_path = 'naive_bayes_model.pkl'
+lasso_regression_model_path = 'lasso_regression_pipeline.joblib'
 
 # Load models with error handling
 def load_model(path):
@@ -30,12 +31,13 @@ logistic_regression_model = load_model(logistic_regression_model_path)
 decision_tree_model = load_model(decision_tree_model_path)
 random_forest_model = load_model(random_forest_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
+lasso_regression_model = load_model(lasso_regression_model_path)
 
 # Define the features expected by the models
-# Example feature sets: adjust these based on your actual models
 expected_feature_cols_lr = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
 expected_feature_cols_dt_rf = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
 expected_feature_cols_nb = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
+expected_feature_cols_lin = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
 
 # Preprocess input data
 def preprocess_data(data, feature_cols):
@@ -67,7 +69,7 @@ input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
 # Model selection
 model_choice = st.sidebar.selectbox(
     'Select Model for Prediction',
-    ['Logistic Regression', 'Decision Tree', 'Random Forest', 'Naive Bayes']
+    ['Logistic Regression', 'Decision Tree', 'Random Forest', 'Naive Bayes', 'Lasso Regression']
 )
 
 # Make predictions
@@ -127,6 +129,21 @@ if st.sidebar.button('Predict'):
                 st.write("**Error:** The input data does not match the expected feature set for Naive Bayes.")
         except Exception as e:
             st.write(f"**Error in Naive Bayes prediction:** {e}")
+
+    elif model_choice == 'Lasso Regression' and lasso_regression_model:
+        try:
+            processed_data = preprocess_data(input_data, expected_feature_cols_lin)
+            # Ensure the input data for Lasso Regression is of correct shape
+            if processed_data.shape[1] == len(expected_feature_cols_lin):
+                lasso_pred = lasso_regression_model.predict(processed_data)
+                st.write(f"**Lasso Regression Raw Prediction:** {lasso_pred[0]}")
+                # Lasso Regression output may need interpretation based on your specific application
+                result_lasso = 'Accepted for Credit' if lasso_pred[0] > threshold else 'Rejected for Credit'  # Adjust threshold as necessary
+                st.write(f"### Lasso Regression Result: **{result_lasso}**")
+            else:
+                st.write("**Error:** The input data does not match the expected feature set for Lasso Regression.")
+        except Exception as e:
+            st.write(f"**Error in Lasso Regression prediction:** {e}")
 
     else:
         st.write("**Error:** The selected model failed to load or is not available.")
