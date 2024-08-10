@@ -32,15 +32,19 @@ random_forest_model = load_model(random_forest_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 
 # Define the features expected by the models
-expected_feature_cols = [
+# Example feature sets: you should verify the exact feature sets used for each model
+expected_feature_cols_lr_dt_rf = [
     'CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment'
+]
+expected_feature_cols_nb = [
+    'CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent'
 ]
 
 # Preprocess input data
-def preprocess_data(data):
+def preprocess_data(data, feature_cols):
     df = pd.DataFrame([data])
     # Ensure the DataFrame has the correct columns
-    df = df.reindex(columns=expected_feature_cols, fill_value=0)
+    df = df.reindex(columns=feature_cols, fill_value=0)
     return df
 
 # Streamlit UI setup
@@ -63,13 +67,6 @@ input_data = {
 # Convert categorical inputs
 input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
 
-# Preprocess input data
-processed_data = preprocess_data(input_data)
-
-# Display preprocessed data for debugging
-st.write("### Input Data")
-st.write(processed_data)
-
 # Model selection
 model_choice = st.sidebar.selectbox(
     'Select Model for Prediction',
@@ -80,7 +77,7 @@ model_choice = st.sidebar.selectbox(
 if st.sidebar.button('Predict'):
     if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
-            # Logistic Regression prediction
+            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
             lr_pred = logistic_regression_model.predict(processed_data)
             st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
             result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
@@ -90,7 +87,7 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
-            # Decision Tree prediction
+            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
             dt_pred = decision_tree_model.predict(processed_data)
             st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
             result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
@@ -100,7 +97,7 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Random Forest' and random_forest_model:
         try:
-            # Random Forest prediction
+            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
             rf_pred = random_forest_model.predict(processed_data)
             st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
             result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
@@ -110,7 +107,7 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Naive Bayes' and naive_bayes_model:
         try:
-            # Naive Bayes prediction
+            processed_data = preprocess_data(input_data, expected_feature_cols_nb)
             nb_pred = naive_bayes_model.predict(processed_data)
             st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
             result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
