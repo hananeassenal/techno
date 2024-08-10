@@ -4,10 +4,13 @@ import pandas as pd
 import numpy as np
 import os
 
-# Define path to the Linear Regression model file
+# Define paths to the model files
+naive_bayes_model_path = 'naive_bayes_model.pkl'
+logistic_regression_model_path = 'logistic_regression_model.pkl'
+decision_tree_model_path = 'decision_tree_model.pkl'
 linear_model_path = 'linear_model.pkl'
 
-# Load pre-trained Linear Regression model
+# Load pre-trained models
 def load_model(path):
     if os.path.isfile(path):
         return joblib.load(path)
@@ -15,6 +18,9 @@ def load_model(path):
         st.error(f"Model file not found: {path}")
         return None
 
+naive_bayes_pipe = load_model(naive_bayes_model_path)
+logistic_regression_pipe = load_model(logistic_regression_model_path)
+decision_tree_pipe = load_model(decision_tree_model_path)
 linear_pipe = load_model(linear_model_path)
 
 # Define all feature columns used during model training
@@ -101,9 +107,15 @@ input_df = pd.DataFrame([input_data])
 st.write("### Input Data")
 st.write(input_df)
 
+# Model selection
+model_choice = st.sidebar.selectbox(
+    'Select Model for Prediction',
+    ['Linear Regression', 'Naive Bayes', 'Logistic Regression', 'Decision Tree']
+)
+
 # Make predictions
 if st.sidebar.button('Predict'):
-    if linear_pipe:
+    if model_choice == 'Linear Regression' and linear_pipe:
         try:
             # Make predictions with Linear Regression
             linear_pred = linear_pipe.predict(input_df)
@@ -115,5 +127,33 @@ if st.sidebar.button('Predict'):
             st.write(f"### Prepayment: **{linear_pred_display}**")
         except Exception as e:
             st.write(f"**Error in Linear Regression prediction:** {e}")
+
+    elif model_choice == 'Naive Bayes' and naive_bayes_pipe:
+        try:
+            # Make predictions with Naive Bayes
+            nb_pred = naive_bayes_pipe.predict(input_df)
+            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
+            st.write(f"### Naive Bayes Result: **{result_nb}**")
+        except Exception as e:
+            st.write(f"**Error in Naive Bayes prediction:** {e}")
+
+    elif model_choice == 'Logistic Regression' and logistic_regression_pipe:
+        try:
+            # Make predictions with Logistic Regression
+            lr_pred = logistic_regression_pipe.predict(input_df)
+            result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
+            st.write(f"### Logistic Regression Result: **{result_lr}**")
+        except Exception as e:
+            st.write(f"**Error in Logistic Regression prediction:** {e}")
+
+    elif model_choice == 'Decision Tree' and decision_tree_pipe:
+        try:
+            # Make predictions with Decision Tree
+            dt_pred = decision_tree_pipe.predict(input_df)
+            result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
+            st.write(f"### Decision Tree Result: **{result_dt}**")
+        except Exception as e:
+            st.write(f"**Error in Decision Tree prediction:** {e}")
+
     else:
-        st.write("**Error:** The model failed to load.")
+        st.write("**Error:** The selected model failed to load or is not available.")
