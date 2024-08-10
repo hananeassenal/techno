@@ -30,8 +30,8 @@ logistic_regression_model = load_model(logistic_regression_model_path)
 decision_tree_model = load_model(decision_tree_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 
-# Define feature columns and preprocessing similar to your example
-feature_cols = [
+# Define the correct feature columns as used during training
+training_feature_cols = [
     'CreditScore', 'MonthsInRepayment', 'LTV', 'FirstTimeHomebuyer', 'PPM',
     'MSA', 'TotalPayment', 'OrigInterestRate', 'MonthlyIncome', 'OCLTV',
     'MonthlyRate', 'interest_amt', 'EMI', 'cur_principal', 'MonthsDelinquent',
@@ -42,12 +42,12 @@ feature_cols = [
 def preprocess_data(data):
     # Ensure input data has the correct feature columns
     df = pd.DataFrame([data])
-    df = df[feature_cols]
-
-    # Apply any additional preprocessing if needed
-    # For example, you can use preprocessing steps like scaling, encoding, etc.
     
-    # Here, we assume preprocessing has already been applied or is not needed
+    # Align features
+    df = df.reindex(columns=training_feature_cols, fill_value=0)  # Ensure all features are present
+    
+    # Apply any additional preprocessing if needed (e.g., scaling, encoding)
+    
     return df
 
 # Define Streamlit UI
