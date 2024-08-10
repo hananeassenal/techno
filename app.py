@@ -32,13 +32,10 @@ random_forest_model = load_model(random_forest_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 
 # Define the features expected by the models
-# Example feature sets: you should verify the exact feature sets used for each model
-expected_feature_cols_lr_dt_rf = [
-    'CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment'
-]
-expected_feature_cols_nb = [
-    'CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent'
-]
+# Example feature sets: adjust these based on your actual models
+expected_feature_cols_lr = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
+expected_feature_cols_dt_rf = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
+expected_feature_cols_nb = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
 
 # Preprocess input data
 def preprocess_data(data, feature_cols):
@@ -77,9 +74,9 @@ model_choice = st.sidebar.selectbox(
 if st.sidebar.button('Predict'):
     if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
-            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
+            processed_data = preprocess_data(input_data, expected_feature_cols_lr)
             # Ensure the input data for Logistic Regression is of correct shape
-            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+            if processed_data.shape[1] == len(expected_feature_cols_lr):
                 lr_pred = logistic_regression_model.predict(processed_data)
                 st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
                 result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
@@ -91,9 +88,9 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
-            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
+            processed_data = preprocess_data(input_data, expected_feature_cols_dt_rf)
             # Ensure the input data for Decision Tree is of correct shape
-            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+            if processed_data.shape[1] == len(expected_feature_cols_dt_rf):
                 dt_pred = decision_tree_model.predict(processed_data)
                 st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
                 result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
@@ -105,9 +102,9 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Random Forest' and random_forest_model:
         try:
-            processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
+            processed_data = preprocess_data(input_data, expected_feature_cols_dt_rf)
             # Ensure the input data for Random Forest is of correct shape
-            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+            if processed_data.shape[1] == len(expected_feature_cols_dt_rf):
                 rf_pred = random_forest_model.predict(processed_data)
                 st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
                 result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
