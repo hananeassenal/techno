@@ -127,11 +127,8 @@ if st.sidebar.button('Predict'):
             linear_pred = linear_pipe.predict(input_df)
             # Display raw prediction for debugging
             st.write(f"Raw Linear Regression Prediction: {linear_pred[0]}")
-            # Handle extreme values
-            if np.abs(linear_pred[0]) > 1e6:  # Threshold for large values
-                linear_pred_display = "Value too large"
-            else:
-                linear_pred_display = f"{linear_pred[0]:.2f}"
+            # Normalize or scale values if necessary
+            linear_pred_display = f"{linear_pred[0]:.2f}" if np.abs(linear_pred[0]) <= 1e6 else "Value too large"
             st.write(f"### Prepayment: **{linear_pred_display}**")
         except Exception as e:
             st.write(f"**Error in Linear Regression prediction:** {e}")
