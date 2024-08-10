@@ -118,6 +118,7 @@ if st.sidebar.button('Predict'):
         try:
             # Make predictions with Logistic Regression
             lr_pred = logistic_regression_model.predict(processed_data)
+            st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
             result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Logistic Regression Result: **{result_lr}**")
         except Exception as e:
@@ -127,6 +128,7 @@ if st.sidebar.button('Predict'):
         try:
             # Make predictions with Decision Tree
             dt_pred = decision_tree_model.predict(processed_data)
+            st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
             result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Decision Tree Result: **{result_dt}**")
         except Exception as e:
@@ -136,6 +138,7 @@ if st.sidebar.button('Predict'):
         try:
             # Make predictions with Naive Bayes
             nb_pred = naive_bayes_model.predict(processed_data)
+            st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
             result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Naive Bayes Result: **{result_nb}**")
         except Exception as e:
