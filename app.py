@@ -5,9 +5,9 @@ import numpy as np
 import os
 
 # Define paths to the model files
-logistic_regression_model_path = 'Logistic_Regression_model (1).pkl'
+logistic_regression_model_path = 'logistic_model.pkl'
 decision_tree_model_path = 'decision_tree_model.pkl'
-linear_model_path = 'linear_model.pkl'
+naive_bayes_model_path = 'naive_bayes_model.pkl'
 
 # Load pre-trained models with error handling
 def load_model(path):
@@ -25,12 +25,12 @@ def load_model(path):
         return None
 
 # Load models
-logistic_regression_pipe = load_model(logistic_regression_model_path)
-decision_tree_pipe = load_model(decision_tree_model_path)
-linear_pipe = load_model(linear_model_path)
+logistic_regression_model = load_model(logistic_regression_model_path)
+decision_tree_model = load_model(decision_tree_model_path)
+naive_bayes_model = load_model(naive_bayes_model_path)
 
-# Define all feature columns used during model training
-all_feature_cols = [
+# Define feature columns
+feature_cols = [
     'total_payment', 'CreditScore', 'OrigInterestRate', 'MonthlyIncome', 'MIP',
     'OCLTV', 'MonthlyRate', 'MSA', 'OrigLoanTerm', 'interest_amt', 'EMI', 'cur_principal',
     'MonthsDelinquent', 'DTI', 'OrigUPB', 'MonthsInRepayment'
@@ -57,8 +57,9 @@ sample_values = {
 }
 
 # Define Streamlit UI
-st.set_page_config(page_title='Model Prediction Web Application', layout='wide')
-st.title('Model Prediction Web Application')
+st.set_page_config(page_title='Mortgage Model Prediction', layout='wide')
+st.title('Mortgage Model Prediction Web Application')
+
 st.markdown(
     """
     <style>
@@ -97,7 +98,7 @@ st.sidebar.header('Input Features')
 st.sidebar.write("Please enter the values for the features below:")
 
 input_data = {}
-for col in all_feature_cols:
+for col in feature_cols:
     input_data[col] = st.sidebar.number_input(
         f'{col}', 
         value=float(sample_values[col]),  # Ensure value is float
@@ -116,40 +117,37 @@ st.write(input_df)
 # Model selection
 model_choice = st.sidebar.selectbox(
     'Select Model for Prediction',
-    ['Linear Regression', 'Logistic Regression', 'Decision Tree']
+    ['Logistic Regression', 'Decision Tree', 'Naive Bayes']
 )
 
 # Make predictions
 if st.sidebar.button('Predict'):
-    if model_choice == 'Linear Regression' and linear_pipe:
-        try:
-            # Make predictions with Linear Regression
-            linear_pred = linear_pipe.predict(input_df)
-            # Display raw prediction for debugging
-            st.write(f"Raw Linear Regression Prediction: {linear_pred[0]}")
-            # Normalize or scale values if necessary
-            linear_pred_display = f"{linear_pred[0]:.2f}" if np.abs(linear_pred[0]) <= 1e6 else "Value too large"
-            st.write(f"### Prepayment: **{linear_pred_display}**")
-        except Exception as e:
-            st.write(f"**Error in Linear Regression prediction:** {e}")
-
-    elif model_choice == 'Logistic Regression' and logistic_regression_pipe:
+    if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
             # Make predictions with Logistic Regression
-            lr_pred = logistic_regression_pipe.predict(input_df)
+            lr_pred = logistic_regression_model.predict(input_df)
             result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Logistic Regression Result: **{result_lr}**")
         except Exception as e:
             st.write(f"**Error in Logistic Regression prediction:** {e}")
 
-    elif model_choice == 'Decision Tree' and decision_tree_pipe:
+    elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
             # Make predictions with Decision Tree
-            dt_pred = decision_tree_pipe.predict(input_df)
+            dt_pred = decision_tree_model.predict(input_df)
             result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Decision Tree Result: **{result_dt}**")
         except Exception as e:
             st.write(f"**Error in Decision Tree prediction:** {e}")
+
+    elif model_choice == 'Naive Bayes' and naive_bayes_model:
+        try:
+            # Make predictions with Naive Bayes
+            nb_pred = naive_bayes_model.predict(input_df)
+            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
+            st.write(f"### Naive Bayes Result: **{result_nb}**")
+        except Exception as e:
+            st.write(f"**Error in Naive Bayes prediction:** {e}")
 
     else:
         st.write("**Error:** The selected model failed to load or is not available.")
