@@ -24,6 +24,7 @@ def load_model(path):
         st.error(f"Error loading model from '{path}': {e}")
         return None
 
+# Load models
 logistic_regression_pipe = load_model(logistic_regression_model_path)
 decision_tree_pipe = load_model(decision_tree_model_path)
 linear_pipe = load_model(linear_model_path)
