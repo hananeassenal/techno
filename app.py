@@ -37,7 +37,7 @@ lasso_regression_model = load_model(lasso_regression_model_path)
 expected_feature_cols_lr = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
 expected_feature_cols_dt_rf = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
 expected_feature_cols_nb = ['CreditScore', 'DTI', 'EverDelinquent', 'MonthsDelinquent']
-expected_feature_cols_lin = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment', 'EMI', 'MonthlyIncome', 'OrigInterestRate', 'OrigLoanTerm', 'OrigUPB']
+expected_feature_cols_lin = ['MonthsDelinquent', 'CreditScore', 'MaturityMonth', 'FirstPaymentMonth', 'OrigLoanTerm', 'OrigInterestRate', 'OrigUPB', 'Units', 'PropertyType', 'MaturityYear', 'FirstPaymentYear', 'DTI', 'MIP']
 
 # Preprocess input data
 def preprocess_data(data, feature_cols):
@@ -55,17 +55,20 @@ st.sidebar.write("Enter the feature values below:")
 
 # Example input data
 input_data = {
-    'CreditScore': st.sidebar.number_input('CreditScore', value=650.0, format="%.2f"),
-    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),
-    'DTI': st.sidebar.number_input('DTI', value=0.3, format="%.2f"),
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1']),
     'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=6.0, format="%.2f"),
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=12.0, format="%.2f"),
-    'EMI': st.sidebar.number_input('EMI', value=1500.0, format="%.2f"),
-    'MonthlyIncome': st.sidebar.number_input('MonthlyIncome', value=5000.0, format="%.2f"),
-    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=4.5, format="%.2f"),
+    'CreditScore': st.sidebar.number_input('CreditScore', value=650.0, format="%.2f"),
+    'MaturityMonth': st.sidebar.number_input('MaturityMonth', value=12.0, format="%.2f"),
+    'FirstPaymentMonth': st.sidebar.number_input('FirstPaymentMonth', value=6.0, format="%.2f"),
     'OrigLoanTerm': st.sidebar.number_input('OrigLoanTerm', value=360.0, format="%.2f"),
+    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=4.5, format="%.2f"),
     'OrigUPB': st.sidebar.number_input('OrigUPB', value=200000.0, format="%.2f"),
+    'Units': st.sidebar.number_input('Units', value=1.0, format="%.2f"),
+    'PropertyType': st.sidebar.number_input('PropertyType', value=0.0, format="%.2f"),
+    'MaturityYear': st.sidebar.number_input('MaturityYear', value=2024.0, format="%.2f"),
+    'FirstPaymentYear': st.sidebar.number_input('FirstPaymentYear', value=2024.0, format="%.2f"),
+    'DTI': st.sidebar.number_input('DTI', value=0.3, format="%.2f"),
+    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1'])
 }
 
 # Convert categorical inputs
