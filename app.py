@@ -31,31 +31,22 @@ naive_bayes_model = load_model(naive_bayes_model_path)
 
 # Define the correct feature columns as used during training
 training_feature_cols = [
-    'CreditScore', 'FirstPaymentDate', 'FirstTimeHomebuyer', 'MaturityDate', 'MSA', 'MIP', 'Units', 'Occupancy', 
-    'OCLTV', 'DTI', 'OrigUPB', 'LTV', 'OrigInterestRate', 'Channel', 'PPM', 'ProductType', 'PropertyState', 
-    'PropertyType', 'LoanPurpose', 'OrigLoanTerm', 'NumBorrowers', 'SellerName', 'ServicerName', 
-    'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment', 'CreditScoreGroup', 'RepaymentYearsGroup', 'LTVGroup'
+    'CreditScore', 'MonthsInRepayment', 'LTV', 'FirstTimeHomebuyer', 'PPM',
+    'MSA', 'TotalPayment', 'OrigInterestRate', 'MonthlyIncome', 'OCLTV',
+    'MonthlyRate', 'interest_amt', 'EMI', 'cur_principal', 'MonthsDelinquent',
+    'DTI', 'OrigUPB', 'EverDelinquent'
 ]
 
 # Define preprocessing function
 def preprocess_data(data):
+    # Ensure input data has the correct feature columns
     df = pd.DataFrame([data])
     
-    # Ensure all feature columns are present
-    df = df.reindex(columns=training_feature_cols, fill_value=0)
+    # Align features
+    df = df.reindex(columns=training_feature_cols, fill_value=0)  # Ensure all features are present
     
-    # Convert categorical columns to appropriate data types
-    categorical_cols = ['FirstTimeHomebuyer', 'PPM', 'EverDelinquent']
-    df[categorical_cols] = df[categorical_cols].astype(int)
+    # Apply any additional preprocessing if needed (e.g., scaling, encoding)
     
-    # Handle date columns if needed
-    if 'FirstPaymentDate' in df.columns:
-        df['FirstPaymentDate'] = pd.to_datetime(df['FirstPaymentDate'], format='%Y-%m-%d', errors='coerce')
-    if 'MaturityDate' in df.columns:
-        df['MaturityDate'] = pd.to_datetime(df['MaturityDate'], format='%Y-%m-%d', errors='coerce')
-    
-    # Additional preprocessing steps if required
-
     return df
 
 # Define Streamlit UI
@@ -102,34 +93,23 @@ st.sidebar.write("Please enter the values for the features below:")
 # Sample values for testing
 input_data = {
     'CreditScore': st.sidebar.number_input('CreditScore', value=700.0, format="%.2f"),
-    'FirstPaymentDate': st.sidebar.date_input('FirstPaymentDate'),
+    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
+    'LTV': st.sidebar.number_input('LTV', value=80.0, format="%.2f"),
     'FirstTimeHomebuyer': st.sidebar.selectbox('FirstTimeHomebuyer', ['Yes', 'No']),
-    'MaturityDate': st.sidebar.date_input('MaturityDate'),
+    'PPM': st.sidebar.selectbox('PPM', ['Yes', 'No']),
     'MSA': st.sidebar.number_input('MSA', value=100.0, format="%.2f"),
-    'MIP': st.sidebar.number_input('MIP', value=0.0, format="%.2f"),
-    'Units': st.sidebar.number_input('Units', value=1, format="%d"),
-    'Occupancy': st.sidebar.text_input('Occupancy'),
+    'TotalPayment': st.sidebar.number_input('TotalPayment', value=500.0, format="%.2f"),
+    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=3.5, format="%.2f"),
+    'MonthlyIncome': st.sidebar.number_input('MonthlyIncome', value=5000.0, format="%.2f"),
     'OCLTV': st.sidebar.number_input('OCLTV', value=80.0, format="%.2f"),
+    'MonthlyRate': st.sidebar.number_input('MonthlyRate', value=0.03, format="%.2f"),
+    'interest_amt': st.sidebar.number_input('interest_amt', value=1000.0, format="%.2f"),
+    'EMI': st.sidebar.number_input('EMI', value=1500.0, format="%.2f"),
+    'cur_principal': st.sidebar.number_input('cur_principal', value=200000.0, format="%.2f"),
+    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
     'DTI': st.sidebar.number_input('DTI', value=0.35, format="%.2f"),
     'OrigUPB': st.sidebar.number_input('OrigUPB', value=180000.0, format="%.2f"),
-    'LTV': st.sidebar.number_input('LTV', value=80.0, format="%.2f"),
-    'OrigInterestRate': st.sidebar.number_input('OrigInterestRate', value=3.5, format="%.2f"),
-    'Channel': st.sidebar.text_input('Channel'),
-    'PPM': st.sidebar.selectbox('PPM', ['Yes', 'No']),
-    'ProductType': st.sidebar.text_input('ProductType'),
-    'PropertyState': st.sidebar.text_input('PropertyState'),
-    'PropertyType': st.sidebar.text_input('PropertyType'),
-    'LoanPurpose': st.sidebar.text_input('LoanPurpose'),
-    'OrigLoanTerm': st.sidebar.number_input('OrigLoanTerm', value=30, format="%d"),
-    'NumBorrowers': st.sidebar.number_input('NumBorrowers', value=1, format="%d"),
-    'SellerName': st.sidebar.text_input('SellerName'),
-    'ServicerName': st.sidebar.text_input('ServicerName'),
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1']),
-    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=3.0, format="%.2f"),
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=24.0, format="%.2f"),
-    'CreditScoreGroup': st.sidebar.text_input('CreditScoreGroup'),
-    'RepaymentYearsGroup': st.sidebar.text_input('RepaymentYearsGroup'),
-    'LTVGroup': st.sidebar.text_input('LTVGroup')
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['0', '1'])
 }
 
 # Convert categorical inputs
