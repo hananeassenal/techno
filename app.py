@@ -179,4 +179,4 @@ if st.sidebar.button('Predict'):
             st.write(f"**Error in Naive Bayes prediction:** {e}")
 
     else:
-        st.write("**Error:** The selected model failed to load or is not available.")
+        st.write("**Please select a model to get predictions.**")
