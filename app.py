@@ -1,6 +1,5 @@
 import streamlit as st
 import joblib
-import numpy as np
 import pandas as pd
 
 # Load the models and scaler
@@ -38,22 +37,31 @@ def user_input_features():
 
 input_data = user_input_features()
 
-# Scale the data
-scaled_input = scaler.transform(input_data)
+# Debugging info
+st.write("Input Data:")
+st.write(input_data)
+
+try:
+    # Scale the data
+    scaled_input = scaler.transform(input_data)
+except Exception as e:
+    st.write(f"Error during scaling: {e}")
 
 # Predictions
-logistic_regression_prediction = logistic_regression_model.predict(scaled_input)
-decision_tree_prediction = decision_tree_model.predict(scaled_input)
-random_forest_prediction = random_forest_model.predict(scaled_input)
-naive_bayes_prediction = naive_bayes_model.predict(scaled_input)
+try:
+    logistic_regression_prediction = logistic_regression_model.predict(scaled_input)
+    decision_tree_prediction = decision_tree_model.predict(scaled_input)
+    random_forest_prediction = random_forest_model.predict(scaled_input)
+    naive_bayes_prediction = naive_bayes_model.predict(scaled_input)
 
-# Display results
-st.subheader('Model Predictions')
-
-st.write("Logistic Regression Prediction: ", "Accepted for Credit" if logistic_regression_prediction[0] == 1 else "Not Accepted for Credit")
-st.write("Decision Tree Prediction: ", "Accepted for Credit" if decision_tree_prediction[0] == 1 else "Not Accepted for Credit")
-st.write("Random Forest Prediction: ", "Accepted for Credit" if random_forest_prediction[0] == 1 else "Not Accepted for Credit")
-st.write("Naive Bayes Prediction: ", "Accepted for Credit" if naive_bayes_prediction[0] == 1 else "Not Accepted for Credit")
+    # Display results
+    st.subheader('Model Predictions')
+    st.write("Logistic Regression Prediction: ", "Accepted for Credit" if logistic_regression_prediction[0] == 1 else "Not Accepted for Credit")
+    st.write("Decision Tree Prediction: ", "Accepted for Credit" if decision_tree_prediction[0] == 1 else "Not Accepted for Credit")
+    st.write("Random Forest Prediction: ", "Accepted for Credit" if random_forest_prediction[0] == 1 else "Not Accepted for Credit")
+    st.write("Naive Bayes Prediction: ", "Accepted for Credit" if naive_bayes_prediction[0] == 1 else "Not Accepted for Credit")
+except Exception as e:
+    st.write(f"Error during prediction: {e}")
 
 # If you want to show the feature importance from the models
 st.subheader('Model Feature Importances')
