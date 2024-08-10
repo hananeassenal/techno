@@ -1,104 +1,65 @@
 import streamlit as st
 import joblib
-import pandas as pd
 import numpy as np
-import os
+import pandas as pd
 
-# Paths to the model files
-logistic_regression_model_path = 'logistic_model (1).pkl'
-decision_tree_model_path = 'decision_tree_model (3).pkl'
-naive_bayes_model_path = 'naive_bayes_model (2).pkl'
+# Load the models and scaler
+logistic_regression_model = joblib.load('logistic_regression_model.pkl')
+decision_tree_model = joblib.load('decision_tree_model.pkl')
+random_forest_model = joblib.load('random_forest_model.pkl')
+naive_bayes_model = joblib.load('naive_bayes_model.pkl')
+scaler = joblib.load('scaler.pkl')
 
-# Load models with error handling
-def load_model(path):
-    try:
-        if os.path.isfile(path):
-            return joblib.load(path)
-        else:
-            st.error(f"Model file not found: {path}")
-            return None
-    except EOFError:
-        st.error(f"EOFError: The model file '{path}' appears to be corrupted.")
-        return None
-    except Exception as e:
-        st.error(f"Error loading model from '{path}': {e}")
-        return None
+# Streamlit app
+st.title('Loan Credit Prediction')
 
-# Load models
-logistic_regression_model = load_model(logistic_regression_model_path)
-decision_tree_model = load_model(decision_tree_model_path)
-naive_bayes_model = load_model(naive_bayes_model_path)
+# Input features
+st.sidebar.header('User Input Features')
 
-# Define the features expected by the model
-training_feature_cols = [
-    'CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment'
-]
+def user_input_features():
+    credit_score = st.sidebar.slider('Credit Score', min_value=300, max_value=850, value=650)
+    mip = st.sidebar.slider('MIP', min_value=0.0, max_value=1.0, value=0.5)
+    dti = st.sidebar.slider('DTI', min_value=0.0, max_value=1.0, value=0.3)
+    ever_delinquent = st.sidebar.slider('Ever Delinquent', min_value=0, max_value=1, value=0)
+    months_delinquent = st.sidebar.slider('Months Delinquent', min_value=0, max_value=12, value=0)
+    months_in_repayment = st.sidebar.slider('Months In Repayment', min_value=0, max_value=360, value=60)
+    
+    data = {
+        'CreditScore': credit_score,
+        'MIP': mip,
+        'DTI': dti,
+        'EverDelinquent': ever_delinquent,
+        'MonthsDelinquent': months_delinquent,
+        'MonthsInRepayment': months_in_repayment
+    }
+    
+    features = pd.DataFrame(data, index=[0])
+    return features
 
-# Preprocess input data
-def preprocess_data(data):
-    df = pd.DataFrame([data])
-    df = df[training_feature_cols]
-    df = df.fillna(0)
-    return df
+input_data = user_input_features()
 
-# Streamlit UI setup
-st.set_page_config(page_title='Mortgage Model Prediction', layout='wide')
-st.title('Mortgage Model Prediction Web Application')
+# Scale the data
+scaled_input = scaler.transform(input_data)
 
-st.sidebar.header('Input Features')
-st.sidebar.write("Enter the feature values below:")
+# Predictions
+logistic_regression_prediction = logistic_regression_model.predict(scaled_input)
+decision_tree_prediction = decision_tree_model.predict(scaled_input)
+random_forest_prediction = random_forest_model.predict(scaled_input)
+naive_bayes_prediction = naive_bayes_model.predict(scaled_input)
 
-# Example input data
-input_data = {
-    'CreditScore': st.sidebar.number_input('CreditScore', value=550.0, format="%.2f"),
-    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),
-    'DTI': st.sidebar.number_input('DTI', value=0.55, format="%.2f"),
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['1', '0']),
-    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=12.0, format="%.2f"),
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=6.0, format="%.2f"),
-}
+# Display results
+st.subheader('Model Predictions')
 
-input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
-processed_data = preprocess_data(input_data)
+st.write("Logistic Regression Prediction: ", "Accepted for Credit" if logistic_regression_prediction[0] == 1 else "Not Accepted for Credit")
+st.write("Decision Tree Prediction: ", "Accepted for Credit" if decision_tree_prediction[0] == 1 else "Not Accepted for Credit")
+st.write("Random Forest Prediction: ", "Accepted for Credit" if random_forest_prediction[0] == 1 else "Not Accepted for Credit")
+st.write("Naive Bayes Prediction: ", "Accepted for Credit" if naive_bayes_prediction[0] == 1 else "Not Accepted for Credit")
 
-st.write("### Input Data")
-st.write(processed_data)
+# If you want to show the feature importance from the models
+st.subheader('Model Feature Importances')
 
-model_choice = st.sidebar.selectbox(
-    'Select Model for Prediction',
-    ['Logistic Regression', 'Decision Tree', 'Naive Bayes']
-)
-
-if st.sidebar.button('Predict'):
-    if model_choice == 'Logistic Regression' and logistic_regression_model:
-        try:
-            # Predict probabilities for adjusting threshold
-            lr_probs = logistic_regression_model.predict_proba(processed_data)
-            threshold = 0.4
-            lr_pred = (lr_probs[:, 1] > threshold).astype(int)
-            st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
-            result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Logistic Regression Result: **{result_lr}**")
-        except Exception as e:
-            st.write(f"**Error in Logistic Regression prediction:** {e}")
-
-    elif model_choice == 'Decision Tree' and decision_tree_model:
-        try:
-            dt_pred = decision_tree_model.predict(processed_data)
-            st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
-            result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Decision Tree Result: **{result_dt}**")
-        except Exception as e:
-            st.write(f"**Error in Decision Tree prediction:** {e}")
-
-    elif model_choice == 'Naive Bayes' and naive_bayes_model:
-        try:
-            nb_pred = naive_bayes_model.predict(processed_data)
-            st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
-            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Naive Bayes Result: **{result_nb}**")
-        except Exception as e:
-            st.write(f"**Error in Naive Bayes prediction:** {e}")
-
-    else:
-        st.write("**Error:** The selected model failed to load or is not available.")
+if hasattr(decision_tree_model, 'feature_importances_'):
+    feature_importances = decision_tree_model.feature_importances_
+    features = input_data.columns
+    importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+    st.write(importance_df)
