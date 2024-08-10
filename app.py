@@ -4,11 +4,10 @@ import pandas as pd
 import numpy as np
 import os
 
-# Define paths to the model files
-knn_model_path = 'knn_model.pkl'
+# Define path to the Linear Regression model file
 linear_model_path = 'linear_model.pkl'
 
-# Load pre-trained models
+# Load pre-trained Linear Regression model
 def load_model(path):
     if os.path.isfile(path):
         return joblib.load(path)
@@ -16,7 +15,6 @@ def load_model(path):
         st.error(f"Model file not found: {path}")
         return None
 
-knn_pipe = load_model(knn_model_path)
 linear_pipe = load_model(linear_model_path)
 
 # Define all feature columns used during model training
@@ -105,15 +103,7 @@ st.write(input_df)
 
 # Make predictions
 if st.sidebar.button('Predict'):
-    if knn_pipe and linear_pipe:
-        try:
-            # Make predictions with KNN
-            knn_pred = knn_pipe.predict(input_df)
-            result_knn = 'Accepted for Credit' if knn_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### You are: **{result_knn}**")
-        except Exception as e:
-            st.write(f"**Error in KNN prediction:** {e}")
-
+    if linear_pipe:
         try:
             # Make predictions with Linear Regression
             linear_pred = linear_pipe.predict(input_df)
@@ -126,4 +116,4 @@ if st.sidebar.button('Predict'):
         except Exception as e:
             st.write(f"**Error in Linear Regression prediction:** {e}")
     else:
-        st.write("**Error:** One or both of the models failed to load.")
+        st.write("**Error:** The model failed to load.")
