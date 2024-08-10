@@ -37,13 +37,8 @@ training_feature_cols = [
 # Preprocess input data
 def preprocess_data(data):
     df = pd.DataFrame([data])
-    
-    # Ensure the DataFrame has the correct columns
     df = df[training_feature_cols]
-    
-    # Handle missing values
-    df = df.fillna(0)  # Example: fill missing values with 0
-    
+    df = df.fillna(0)
     return df
 
 # Streamlit UI setup
@@ -53,38 +48,34 @@ st.title('Mortgage Model Prediction Web Application')
 st.sidebar.header('Input Features')
 st.sidebar.write("Enter the feature values below:")
 
-# Example input data likely to be rejected
+# Example input data
 input_data = {
-    'CreditScore': st.sidebar.number_input('CreditScore', value=550.0, format="%.2f"),  # Low credit score
-    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),  # Higher mortgage insurance
-    'DTI': st.sidebar.number_input('DTI', value=0.55, format="%.2f"),  # High debt-to-income ratio
-    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['1', '0']),  # Previously delinquent
-    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=12.0, format="%.2f"),  # High number of delinquent months
-    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=6.0, format="%.2f"),  # Short repayment period
+    'CreditScore': st.sidebar.number_input('CreditScore', value=550.0, format="%.2f"),
+    'MIP': st.sidebar.number_input('MIP', value=0.5, format="%.2f"),
+    'DTI': st.sidebar.number_input('DTI', value=0.55, format="%.2f"),
+    'EverDelinquent': st.sidebar.selectbox('EverDelinquent', ['1', '0']),
+    'MonthsDelinquent': st.sidebar.number_input('MonthsDelinquent', value=12.0, format="%.2f"),
+    'MonthsInRepayment': st.sidebar.number_input('MonthsInRepayment', value=6.0, format="%.2f"),
 }
 
-# Convert categorical inputs
 input_data['EverDelinquent'] = int(input_data['EverDelinquent'])
-
-# Preprocess input data
 processed_data = preprocess_data(input_data)
 
-# Display preprocessed data for debugging
 st.write("### Input Data")
 st.write(processed_data)
 
-# Model selection
 model_choice = st.sidebar.selectbox(
     'Select Model for Prediction',
     ['Logistic Regression', 'Decision Tree', 'Naive Bayes']
 )
 
-# Make predictions
 if st.sidebar.button('Predict'):
     if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
-            # Logistic Regression prediction
-            lr_pred = logistic_regression_model.predict(processed_data)
+            # Predict probabilities for adjusting threshold
+            lr_probs = logistic_regression_model.predict_proba(processed_data)
+            threshold = 0.4
+            lr_pred = (lr_probs[:, 1] > threshold).astype(int)
             st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
             result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
             st.write(f"### Logistic Regression Result: **{result_lr}**")
@@ -93,7 +84,6 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
-            # Decision Tree prediction
             dt_pred = decision_tree_model.predict(processed_data)
             st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
             result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
@@ -103,7 +93,6 @@ if st.sidebar.button('Predict'):
 
     elif model_choice == 'Naive Bayes' and naive_bayes_model:
         try:
-            # Naive Bayes prediction
             nb_pred = naive_bayes_model.predict(processed_data)
             st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
             result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
