@@ -10,12 +10,19 @@ logistic_regression_model_path = 'logistic_regression_model.pkl'
 decision_tree_model_path = 'decision_tree_model.pkl'
 linear_model_path = 'linear_model.pkl'
 
-# Load pre-trained models
+# Load pre-trained models with error handling
 def load_model(path):
-    if os.path.isfile(path):
-        return joblib.load(path)
-    else:
-        st.error(f"Model file not found: {path}")
+    try:
+        if os.path.isfile(path):
+            return joblib.load(path)
+        else:
+            st.error(f"Model file not found: {path}")
+            return None
+    except EOFError:
+        st.error(f"EOFError: The model file '{path}' appears to be corrupted or incomplete.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading model from '{path}': {e}")
         return None
 
 naive_bayes_pipe = load_model(naive_bayes_model_path)
