@@ -78,40 +78,56 @@ if st.sidebar.button('Predict'):
     if model_choice == 'Logistic Regression' and logistic_regression_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
-            lr_pred = logistic_regression_model.predict(processed_data)
-            st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
-            result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Logistic Regression Result: **{result_lr}**")
+            # Ensure the input data for Logistic Regression is of correct shape
+            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+                lr_pred = logistic_regression_model.predict(processed_data)
+                st.write(f"**Logistic Regression Raw Prediction:** {lr_pred[0]}")
+                result_lr = 'Accepted for Credit' if lr_pred[0] == 1 else 'Rejected for Credit'
+                st.write(f"### Logistic Regression Result: **{result_lr}**")
+            else:
+                st.write("**Error:** The input data does not match the expected feature set for Logistic Regression.")
         except Exception as e:
             st.write(f"**Error in Logistic Regression prediction:** {e}")
 
     elif model_choice == 'Decision Tree' and decision_tree_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
-            dt_pred = decision_tree_model.predict(processed_data)
-            st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
-            result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Decision Tree Result: **{result_dt}**")
+            # Ensure the input data for Decision Tree is of correct shape
+            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+                dt_pred = decision_tree_model.predict(processed_data)
+                st.write(f"**Decision Tree Raw Prediction:** {dt_pred[0]}")
+                result_dt = 'Accepted for Credit' if dt_pred[0] == 1 else 'Rejected for Credit'
+                st.write(f"### Decision Tree Result: **{result_dt}**")
+            else:
+                st.write("**Error:** The input data does not match the expected feature set for Decision Tree.")
         except Exception as e:
             st.write(f"**Error in Decision Tree prediction:** {e}")
 
     elif model_choice == 'Random Forest' and random_forest_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_lr_dt_rf)
-            rf_pred = random_forest_model.predict(processed_data)
-            st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
-            result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Random Forest Result: **{result_rf}**")
+            # Ensure the input data for Random Forest is of correct shape
+            if processed_data.shape[1] == len(expected_feature_cols_lr_dt_rf):
+                rf_pred = random_forest_model.predict(processed_data)
+                st.write(f"**Random Forest Raw Prediction:** {rf_pred[0]}")
+                result_rf = 'Accepted for Credit' if rf_pred[0] == 1 else 'Rejected for Credit'
+                st.write(f"### Random Forest Result: **{result_rf}**")
+            else:
+                st.write("**Error:** The input data does not match the expected feature set for Random Forest.")
         except Exception as e:
             st.write(f"**Error in Random Forest prediction:** {e}")
 
     elif model_choice == 'Naive Bayes' and naive_bayes_model:
         try:
             processed_data = preprocess_data(input_data, expected_feature_cols_nb)
-            nb_pred = naive_bayes_model.predict(processed_data)
-            st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
-            result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
-            st.write(f"### Naive Bayes Result: **{result_nb}**")
+            # Ensure the input data for Naive Bayes is of correct shape
+            if processed_data.shape[1] == len(expected_feature_cols_nb):
+                nb_pred = naive_bayes_model.predict(processed_data)
+                st.write(f"**Naive Bayes Raw Prediction:** {nb_pred[0]}")
+                result_nb = 'Accepted for Credit' if nb_pred[0] == 1 else 'Rejected for Credit'
+                st.write(f"### Naive Bayes Result: **{result_nb}**")
+            else:
+                st.write("**Error:** The input data does not match the expected feature set for Naive Bayes.")
         except Exception as e:
             st.write(f"**Error in Naive Bayes prediction:** {e}")
 
