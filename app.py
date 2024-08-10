@@ -1,6 +1,7 @@
 import streamlit as st
-import joblib
 import pandas as pd
+import joblib
+from sklearn.preprocessing import StandardScaler
 
 # Load the scaler and models
 logistic_regression_model = joblib.load('logistic_regression_model.pkl')
@@ -37,14 +38,14 @@ def user_input_features():
 
 input_data = user_input_features()
 
-# Debugging info
+# Display input data
 st.write("Input Data:")
 st.write(input_data)
 
-# Check the columns in the input data
-expected_columns = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
-if list(input_data.columns) != expected_columns:
-    st.write(f"Feature columns mismatch: Expected {expected_columns}, but got {list(input_data.columns)}")
+# Verify if the features match
+expected_features = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
+if list(input_data.columns) != expected_features:
+    st.write(f"Feature columns mismatch: Expected {expected_features}, but got {list(input_data.columns)}")
 else:
     try:
         # Scale the data
@@ -65,24 +66,23 @@ else:
     except Exception as e:
         st.write(f"Error during scaling or prediction: {e}")
 
-    # If you want to show the feature importance from the models
+    # Feature Importance
     st.subheader('Model Feature Importances')
 
-    try:
-        feature_importances = None
-        if hasattr(decision_tree_model, 'feature_importances_'):
-            feature_importances = decision_tree_model.feature_importances_
-        elif hasattr(random_forest_model, 'feature_importances_'):
-            feature_importances = random_forest_model.feature_importances_
-        
-        if feature_importances is not None:
+    feature_importances = {}
+    if hasattr(decision_tree_model, 'feature_importances_'):
+        feature_importances['Decision Tree'] = decision_tree_model.feature_importances_
+    if hasattr(random_forest_model, 'feature_importances_'):
+        feature_importances['Random Forest'] = random_forest_model.feature_importances_
+
+    if feature_importances:
+        for model_name, importances in feature_importances.items():
             features = input_data.columns
-            if len(features) == len(feature_importances):
-                importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importances})
+            if len(features) == len(importances):
+                importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+                st.write(f"{model_name} Feature Importances")
                 st.write(importance_df)
             else:
-                st.write("Feature importances length mismatch.")
-        else:
-            st.write("Feature importance is not available for the loaded models.")
-    except Exception as e:
-        st.write(f"Error displaying feature importance: {e}")
+                st.write(f"Feature importances length mismatch for {model_name}.")
+    else:
+        st.write("Feature importance is not available for the loaded models.")
