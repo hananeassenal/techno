@@ -3,10 +3,9 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
-from sklearn.base import is_classifier
 
 # Define paths to the model files
-logistic_regression_model_path = 'logistic_regression_model.pkl'
+logistic_regression_model_path = 'Logistic_Regression_model (1).pkl'
 decision_tree_model_path = 'decision_tree_model.pkl'
 linear_model_path = 'linear_model.pkl'
 
@@ -14,12 +13,7 @@ linear_model_path = 'linear_model.pkl'
 def load_model(path):
     try:
         if os.path.isfile(path):
-            model = joblib.load(path)
-            if is_classifier(model):
-                st.write(f"Model loaded: {path} (Classifier)")
-            else:
-                st.write(f"Model loaded: {path} (Regressor)")
-            return model
+            return joblib.load(path)
         else:
             st.error(f"Model file not found: {path}")
             return None
