@@ -33,7 +33,7 @@ random_forest_model = load_model(random_forest_model_path)
 naive_bayes_model = load_model(naive_bayes_model_path)
 scaler = load_model(scaler_path)
 
-# Define the features expected by the models
+# Define the features expected by the models and scaler
 expected_feature_cols = [
     'CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment'
 ]
@@ -84,8 +84,15 @@ model_choice = st.sidebar.selectbox(
 if st.sidebar.button('Predict'):
     if scaler:
         try:
-            # Scale the data
-            scaled_data = scaler.transform(processed_data)
+            # Check the number of features in the input data
+            if processed_data.shape[1] == 4:
+                st.warning("The input data has 4 features, but the scaler expects 6 features.")
+                scaled_data = None
+            else:
+                # Scale the data
+                scaled_data = scaler.transform(processed_data)
+                st.write("### Scaled Data")
+                st.write(scaled_data)
         except Exception as e:
             st.write(f"**Error during scaling:** {e}")
             scaled_data = None
