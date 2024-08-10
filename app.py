@@ -5,9 +5,9 @@ import numpy as np
 import os
 
 # Define paths to the model files
-logistic_regression_model_path = 'logistic_model.pkl'
-decision_tree_model_path = 'decision_tree_model.pkl'
-naive_bayes_model_path = 'naive_bayes_model.pkl'
+logistic_regression_model_path = 'logistic_model (1).pkl'
+decision_tree_model_path = 'decision_tree_model (3).pkl'
+naive_bayes_model_path = 'naive_bayes_model (2).pkl'
 
 # Load pre-trained models with error handling
 def load_model(path):
