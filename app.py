@@ -21,16 +21,13 @@ def user_input_features():
     mip = st.sidebar.slider('MIP', min_value=0.0, max_value=1.0, value=0.5)
     dti = st.sidebar.slider('DTI', min_value=0.0, max_value=1.0, value=0.3)
     ever_delinquent = st.sidebar.slider('Ever Delinquent', min_value=0, max_value=1, value=0)
-    months_delinquent = st.sidebar.slider('Months Delinquent', min_value=0, max_value=12, value=0)
-    months_in_repayment = st.sidebar.slider('Months In Repayment', min_value=0, max_value=360, value=60)
     
+    # Adjust to match the features used during model training
     data = {
         'CreditScore': credit_score,
         'MIP': mip,
         'DTI': dti,
-        'EverDelinquent': ever_delinquent,
-        'MonthsDelinquent': months_delinquent,
-        'MonthsInRepayment': months_in_repayment
+        'EverDelinquent': ever_delinquent
     }
     
     features = pd.DataFrame(data, index=[0])
@@ -43,7 +40,7 @@ st.write("Input Data:")
 st.write(input_data)
 
 # Verify if the features match
-expected_features = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent', 'MonthsDelinquent', 'MonthsInRepayment']
+expected_features = ['CreditScore', 'MIP', 'DTI', 'EverDelinquent']
 if list(input_data.columns) != expected_features:
     st.write(f"Feature columns mismatch: Expected {expected_features}, but got {list(input_data.columns)}")
 else:
@@ -77,7 +74,7 @@ else:
 
     if feature_importances:
         for model_name, importances in feature_importances.items():
-            features = input_data.columns
+            features = expected_features
             if len(features) == len(importances):
                 importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
                 st.write(f"{model_name} Feature Importances")
